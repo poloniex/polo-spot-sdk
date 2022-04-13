@@ -6,6 +6,10 @@
 
 'use strict'
 
+const url = 'https://sand-spot-api-gateway.poloniex.com'
+const apiKey = "api_key"
+const secretKey = "secret_key"
+
 const axios = require('axios')
 const CryptoJS = require('crypto-js')
 let timestamp = new Date().getTime()
@@ -54,15 +58,6 @@ class Sign {
     }
 }
 
-// dev
-// const url = 'https://dev-spot-api-gateway.poloniex.com'
-// const apiKey = "IZ6TMTE8-LZFLDBCA-VPNEWXJR-RDY10005"
-// const secretKey = "ae05a630947c5a8df90e6cb587f7e14406e6b5d47a22e4975ac712f6ce6e6a73fda2b5e12e145fb3a0cfab8f6c408e3015c3763cc9d2c850f2e29a9962362faa"
-
-// sand
-const url = 'https://sand-spot-api-gateway.poloniex.com'
-const apiKey = "BJU56N7S-4TSNOC13-69L22ZQP-W1ME7DHQ"
-const secretKey = "3cb3344bc70831207719d01036962f7237f952f3e49cadd01dbf61d1a57ca7f4e3818273dd8963116c24276f281a3d06a54fda53f81e133879678fa370d83902"
 
 function getHeader(method, path, param) {
     const sign = new Sign(method, path, param, secretKey).sign()
