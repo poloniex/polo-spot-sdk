@@ -58,11 +58,137 @@ public class MainTest {
 
         poloniexApiClient.batchCancelAllOrders(null, "ETH_USDT");
 
-        String tradesResponse = poloniexApiClient.getTrades(1649754528000L);
-
     }
 
 }
+```
+
+### SDK Demo Client
+
+```java
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.Request;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@Data
+@Builder
+@AllArgsConstructor
+@Slf4j
+public class PoloniexApiClient {
+
+    private final static String V2_ACCOUNTS = "/v2/accounts/";
+    private final static String V2_ORDERS = "/v2/orders";
+    private final static String V2_ORDERS_CANCELBYIDS = "/v2/orders/cancelByIds";
+    private final static String V2_ORDERS_BATCH_CANCEL_ALL_ORDERS = "/v2/orders/batchCancelAllOrders";
+
+    private final String apiKey;
+
+    private final String secretKey;
+
+    private final String host;
+
+    public List<PoloniexOrder> getOrders(String symbol) {
+        try {
+            Map<String, Object> map = new HashMap<>();
+            if (StringUtils.isNotBlank(symbol)) {
+                map.put("symbol", symbol);
+            }
+            Request request = PoloniexSignatureHelper.generateGetRequest(apiKey, secretKey, host, V2_ORDERS, map);
+            String response = PoloniexSignatureHelper.executeRequest(request);
+            log.info("getOrdersResponse: {}", response);
+
+            List<PoloniexOrder> orderList = JSONArray.parseArray(response, PoloniexOrder.class);
+            return orderList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void accounts() {
+        try {
+            Map<String, Object> map = new HashMap<String, Object>();
+            Request request = PoloniexSignatureHelper.generateGetRequest(apiKey, secretKey, host, V2_ACCOUNTS, map);
+            String response = PoloniexSignatureHelper.executeRequest(request);
+            log.info("accountResponse: {}", response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Long placeOrder(String symbol, String accountType, String type, String side, String timeInForce, String price, String quantity, String clientOrderId) {
+
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("symbol", symbol);
+        paramMap.put("accountType", accountType);
+        paramMap.put("type", type);
+        paramMap.put("side", side);
+        paramMap.put("timeInForce", timeInForce);
+        paramMap.put("price", price);
+        paramMap.put("quantity", quantity);
+        if (StringUtils.isNotBlank(clientOrderId)) {
+            paramMap.put("clientOrderId", clientOrderId);
+        }
+
+        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_POST, V2_ORDERS, paramMap);
+        String response = PoloniexSignatureHelper.executeRequest(request);
+        log.info("placeResponse: {}  request:{} ", response, JSON.toJSONString(paramMap));
+        JSONObject responseObj = JSON.parseObject(response);
+
+        String orderId = responseObj.getString("id");
+        return Long.valueOf(orderId);
+    }
+
+    public void cancelByIds(List<Long> orderIds, List<String> clientOrderIds) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+
+        if (Objects.nonNull(orderIds) && orderIds.size() > 0) {
+            paramMap.put("orderIds", orderIds);
+        }
+
+        if (Objects.nonNull(clientOrderIds) && clientOrderIds.size() > 0) {
+            paramMap.put("clientOrderIds", clientOrderIds);
+        }
+
+
+        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_CANCELBYIDS, paramMap);
+        String response = PoloniexSignatureHelper.executeRequest(request);
+        log.info("cancelResponse: {}   \n request:{}", response, JSON.toJSONString(paramMap));
+    }
+
+
+    public void batchCancelAllOrders(String accountType, String symbol) {
+
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        if (StringUtils.isNotBlank(symbol)) {
+            paramMap.put("symbol", symbol);
+        }
+
+        if (StringUtils.isNotBlank(accountType)) {
+            paramMap.put("accountType", accountType);
+        }
+        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_BATCH_CANCEL_ALL_ORDERS, paramMap);
+        String response = PoloniexSignatureHelper.executeRequest(request);
+        log.info("batchCancelAllOrder:{} \n request:{}", response, JSON.toJSONString(paramMap));
+
+    }
+
+    
+}
+
 ```
 
 ### Signature Helper Class
@@ -254,133 +380,6 @@ public class PoloniexSignatureHelper {
 
 ```
 
-### SDK Client
-
-```java
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.Request;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-@Data
-@Builder
-@AllArgsConstructor
-@Slf4j
-public class PoloniexApiClient {
-
-    private final static String V2_ACCOUNTS = "/v2/accounts/";
-    private final static String V2_ORDERS = "/v2/orders";
-    private final static String V2_ORDERS_CANCELBYIDS = "/v2/orders/cancelByIds";
-    private final static String V2_ORDERS_BATCH_CANCEL_ALL_ORDERS = "/v2/orders/batchCancelAllOrders";
-
-    private final String apiKey;
-
-    private final String secretKey;
-
-    private final String host;
-
-    public List<PoloniexOrder> getOrders(String symbol) {
-        try {
-            Map<String, Object> map = new HashMap<>();
-            if (StringUtils.isNotBlank(symbol)) {
-                map.put("symbol", symbol);
-            }
-            Request request = PoloniexSignatureHelper.generateGetRequest(apiKey, secretKey, host, V2_ORDERS, map);
-            String response = PoloniexSignatureHelper.executeRequest(request);
-//            log.info("getOrdersResponse: {}", response);
-
-            List<PoloniexOrder> orderList = JSONArray.parseArray(response, PoloniexOrder.class);
-            return orderList;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void accounts() {
-        try {
-            Map<String, Object> map = new HashMap<String, Object>();
-            Request request = PoloniexSignatureHelper.generateGetRequest(apiKey, secretKey, host, V2_ACCOUNTS, map);
-            String response = PoloniexSignatureHelper.executeRequest(request);
-            log.info("accountResponse: {}", response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Long placeOrder(String symbol, String accountType, String type, String side, String timeInForce, String price, String quantity, String clientOrderId) {
-
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("symbol", symbol);
-        paramMap.put("accountType", accountType);
-        paramMap.put("type", type);
-        paramMap.put("side", side);
-        paramMap.put("timeInForce", timeInForce);
-        paramMap.put("price", price);
-        paramMap.put("quantity", quantity);
-        if (StringUtils.isNotBlank(clientOrderId)) {
-            paramMap.put("clientOrderId", clientOrderId);
-        }
-
-        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_POST, V2_ORDERS, paramMap);
-        String response = PoloniexSignatureHelper.executeRequest(request);
-//        log.info("placeResponse: {}  request:{} ", response, JSON.toJSONString(paramMap));
-        JSONObject responseObj = JSON.parseObject(response);
-
-        String orderId = responseObj.getString("id");
-        return Long.valueOf(orderId);
-    }
-
-    public void cancelByIds(List<Long> orderIds, List<String> clientOrderIds) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-
-        if (Objects.nonNull(orderIds) && orderIds.size() > 0) {
-            paramMap.put("orderIds", orderIds);
-        }
-
-        if (Objects.nonNull(clientOrderIds) && clientOrderIds.size() > 0) {
-            paramMap.put("clientOrderIds", clientOrderIds);
-        }
-
-
-        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_CANCELBYIDS, paramMap);
-        String response = PoloniexSignatureHelper.executeRequest(request);
-//        log.info("cancelResponse: {}   \n request:{}", response, JSON.toJSONString(paramMap));
-    }
-
-
-    public void batchCancelAllOrders(String accountType, String symbol) {
-
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        if (StringUtils.isNotBlank(symbol)) {
-            paramMap.put("symbol", symbol);
-        }
-
-        if (StringUtils.isNotBlank(accountType)) {
-            paramMap.put("accountType", accountType);
-        }
-        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_BATCH_CANCEL_ALL_ORDERS, paramMap);
-        String response = PoloniexSignatureHelper.executeRequest(request);
-        log.info("batchCancelAllOrder:{} \n request:{}", response, JSON.toJSONString(paramMap));
-
-    }
-
-    
-}
-
-```
 
 ### Model
 
