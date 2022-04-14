@@ -84,6 +84,23 @@ function post(url, path, param = {}) {
         .catch(e => console.error(e))
 }
 
+
+function del(url, path, param = {}, apiKey, secretKey) {
+    const sign = new Sign('DELETE', path, param, apiKey, secretKey)
+    const headers = sign.getSign()
+    return axios.delete(url + path, {data: param, headers: headers})
+        .then(res => console.log(res.data))
+        .catch(e => console.error(e))
+}
+
+function put(url, path, param = {}, apiKey, secretKey) {
+    const sign = new Sign('PUT', path, param, apiKey, secretKey)
+    const headers = sign.getSign()
+    return axios.put(url + path, param, {headers: headers})
+        .then(res => console.log(res.data))
+        .catch(e => console.error(e))
+}
+
 const orderData2 = {
     "symbol": "link_usdt",
     "accountType": "spot",
@@ -95,11 +112,14 @@ const orderData2 = {
     "quantity": "1",
     "clientOrderId": "",
 }
-
 // Place Order
-post(url, '/v2/orders', orderData2)
+post(url, '/v2/orders/', orderData2)
 
-// getOrders
-get(url, '/v2/orders', {limit: 10})
+// Get Order
+get(url, '/v2/orders/', {limit: 10})
+
+// cancelOrder
+const cancelByIds = {"orderIds": ["32532738338848768"], "clientOrderIds": []}
+del(url, '/v2/orders/cancelByIds', cancelByIds, apiKey, secretKey)
 
 ```
