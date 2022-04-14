@@ -2,7 +2,8 @@
 
 ```
 
- # -*- coding:utf-8 -*-import hashlib
+ # -*- coding:utf-8 -*-
+ import hashlib
  import urllib
  import urllib.parse
  import urllib.request
