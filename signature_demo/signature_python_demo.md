@@ -84,7 +84,7 @@
      service = SDK(access_key, secret_key)
  
      # Example1: get order        
-     path_req = "/v2/orders/"    
+     path_req = "/orders/"    
      method_req = "get"    
      params_req = {"limit": 10}
      res = service.sign_req(
@@ -96,7 +96,7 @@
      print("\033[1;31m latency\033[0m", res)
  
      # Example2: place order        
-     path_req = "/v2/orders"    
+     path_req = "/orders"    
      method_req = "post"    
      params_req = {
          "symbol": "link_usdt",
@@ -118,7 +118,7 @@
      print("\033[1;31m latency\033[0m", res)
  
      # Example3: cancel order        
-     path_req = "/v2/orders/cancelByIds"    
+     path_req = "/orders/cancelByIds"    
      method_req = "DELETE"    
      params_req = {
          "orderIds": ["29222978772373504"],
