@@ -113,13 +113,13 @@ const orderData2 = {
     "clientOrderId": "",
 }
 // Place Order
-post(url, '/v2/orders/', orderData2)
+post(url, '/orders/', orderData2)
 
 // Get Order
-get(url, '/v2/orders/', {limit: 10})
+get(url, '/orders/', {limit: 10})
 
 // cancelOrder
 const cancelByIds = {"orderIds": ["32532738338848768"], "clientOrderIds": []}
-del(url, '/v2/orders/cancelByIds', cancelByIds, apiKey, secretKey)
+del(url, '/orders/cancelByIds', cancelByIds, apiKey, secretKey)
 
 ```
