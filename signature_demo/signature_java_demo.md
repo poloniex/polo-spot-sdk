@@ -90,10 +90,10 @@ import java.util.Objects;
 @Slf4j
 public class PoloniexApiClient {
 
-    private final static String V2_ACCOUNTS = "/v2/accounts/";
-    private final static String V2_ORDERS = "/v2/orders";
-    private final static String V2_ORDERS_CANCELBYIDS = "/v2/orders/cancelByIds";
-    private final static String V2_ORDERS_BATCH_CANCEL_ALL_ORDERS = "/v2/orders/batchCancelAllOrders";
+    private final static String V2_ACCOUNTS = "/accounts/";
+    private final static String V2_ORDERS = "/orders";
+    private final static String V2_ORDERS_CANCELBYIDS = "/orders/cancelByIds";
+    private final static String V2_ORDERS_BATCH_CANCEL_ALL_ORDERS = "/orders/batchCancelAllOrders";
 
     private final String apiKey;
 
