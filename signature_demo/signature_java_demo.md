@@ -58,8 +58,6 @@ public class MainTest {
 
         poloniexApiClient.cancelByIds(Lists.newArrayList(buyOrderId, sellOrderId), null);
 
-        poloniexApiClient.batchCancelAllOrders(null, "ETH_USDT");
-
     }
 
 }
@@ -93,7 +91,6 @@ public class PoloniexApiClient {
     private final static String V2_ACCOUNTS = "/accounts/";
     private final static String V2_ORDERS = "/orders";
     private final static String V2_ORDERS_CANCELBYIDS = "/orders/cancelByIds";
-    private final static String V2_ORDERS_BATCH_CANCEL_ALL_ORDERS = "/orders/batchCancelAllOrders";
 
     private final String apiKey;
 
@@ -169,23 +166,6 @@ public class PoloniexApiClient {
         Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_CANCELBYIDS, paramMap);
         String response = PoloniexSignatureHelper.executeRequest(request);
         log.info("cancelResponse: {}   \n request:{}", response, JSON.toJSONString(paramMap));
-    }
-
-
-    public void batchCancelAllOrders(String accountType, String symbol) {
-
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        if (StringUtils.isNotBlank(symbol)) {
-            paramMap.put("symbol", symbol);
-        }
-
-        if (StringUtils.isNotBlank(accountType)) {
-            paramMap.put("accountType", accountType);
-        }
-        Request request = PoloniexSignatureHelper.generateBodyRequest(apiKey, secretKey, host, PoloniexSignatureHelper.REQUEST_METHOD_DELETE, V2_ORDERS_BATCH_CANCEL_ALL_ORDERS, paramMap);
-        String response = PoloniexSignatureHelper.executeRequest(request);
-        log.info("batchCancelAllOrder:{} \n request:{}", response, JSON.toJSONString(paramMap));
-
     }
 
     
